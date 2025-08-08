@@ -24,6 +24,7 @@ def compute_ssim(img1, img2):
     return np.array(ssims).mean()
 
 
+# SSIM的底层实现
 def _ssim(img1, img2):
     """Calculate SSIM (structural similarity) for one channel images.
 

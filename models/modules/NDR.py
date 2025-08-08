@@ -227,7 +227,7 @@ class Upsample(nn.Module):
     def forward(self, x):
         return self.body(x)
 
-
+# 通过矩阵乘法生成亲和力矩阵并加权得到U
 class Degradation_Attention(nn.Module):
     def __init__(self, dim, bias=True):
         super(Degradation_Attention, self).__init__()
@@ -345,11 +345,12 @@ class Degradation_inject(nn.Module):
 
         return x 
 
-
+# 退化学习模块，将上面的退化识别和退化注入结合在一起
 class Degradation_representation_learning(nn.Module):
     def __init__(self, in_n_feat, n_feat=64):
         super(Degradation_representation_learning, self).__init__()
 
+        # 特征映射层
         self.mapping = nn.Conv2d(
             in_n_feat, n_feat, kernel_size=3, stride=1, padding=1, bias=False
         )

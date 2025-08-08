@@ -41,7 +41,7 @@ def parse(opt_path, is_train=True):
         results_root = osp.join(opt['path']['root'], 'results', opt['name'])
         opt['path']['results_root'] = results_root
         opt['path']['log'] = results_root
-        opt['network_G']['scale'] = scale
+        opt['network_G']['scale'] = opt['scale']
 
     return opt
 

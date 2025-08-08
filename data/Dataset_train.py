@@ -17,54 +17,64 @@ class Dataset(data.Dataset):
         self.lq_paths = []
         self.gt_paths = []
 
+        print(opt)
+
         # -------------------------------------------------
         # dehaze
-        haze_lq_path = sorted(glob.glob(os.path.join(opt['dehaze_lq'], '*')))
-        haze_gt_path = []
-        for i in range(len(haze_lq_path)):
-            if not os.path.exists(os.path.join(self.opt['dehaze_gt'], haze_lq_path[i].split('/')[-1][:4] + '.jpg')):
-                haze_gt_path.append(os.path.join(self.opt['dehaze_gt'], haze_lq_path[i].split('/')[-1][:4] + '.png'))
-            else:
-                haze_gt_path.append(os.path.join(self.opt['dehaze_gt'], haze_lq_path[i].split('/')[-1][:4] + '.jpg'))
+        if self.opt.get('dehaze_ratio', 0) > 0:
+            haze_lq_path = sorted(glob.glob(os.path.join(opt['dehaze_lq'], '*')))
+            haze_gt_path = []
+            for i in range(len(haze_lq_path)):
+                if not os.path.exists(os.path.join(self.opt['dehaze_gt'], haze_lq_path[i].split('/')[-1][:4] + '.jpg')):
+                    haze_gt_path.append(os.path.join(self.opt['dehaze_gt'], haze_lq_path[i].split('/')[-1][:4] + '.png'))
+                else:
+                    haze_gt_path.append(os.path.join(self.opt['dehaze_gt'], haze_lq_path[i].split('/')[-1][:4] + '.jpg'))
 
-        assert len(haze_gt_path)==len(haze_lq_path)
+            assert len(haze_gt_path) == len(haze_lq_path)
 
-        print("successfully loaded haze all:", len(haze_lq_path))
-        haze_lq_path = haze_lq_path * self.opt['dehaze_ratio']
-        haze_gt_path = haze_gt_path * self.opt['dehaze_ratio']
-        print("successfully loaded haze all_repeat:", len(haze_lq_path))
+            print("successfully loaded haze all:", len(haze_lq_path))
+            haze_lq_path = haze_lq_path * self.opt['dehaze_ratio']
+            haze_gt_path = haze_gt_path * self.opt['dehaze_ratio']
+            print("successfully loaded haze all_repeat:", len(haze_lq_path))
 
-        self.lq_paths += haze_lq_path
-        self.gt_paths += haze_gt_path
+            self.lq_paths += haze_lq_path
+            self.gt_paths += haze_gt_path
+        else:
+            print("Dehaze dataset skipped (ratio = 0)")
 
         # -------------------------------------------------
         # derain
-        rain_gt_path = sorted(glob.glob(os.path.join(self.opt['derain_gt'], '*')))
-        rain_lq_path = sorted(glob.glob(os.path.join(self.opt['derain_lq'], '*')))
+        if self.opt.get('derain_ratio', 0) > 0:
+            rain_gt_path = sorted(glob.glob(os.path.join(self.opt['derain_gt'], '*')))
+            rain_lq_path = sorted(glob.glob(os.path.join(self.opt['derain_lq'], '*')))
 
-        assert len(rain_gt_path)==len(rain_lq_path)
+            assert len(rain_gt_path) == len(rain_lq_path)
 
-        print("successfully loaded rain all:", len(rain_lq_path))
-        rain_gt_path = rain_gt_path * self.opt['derain_ratio']
-        rain_lq_path = rain_lq_path * self.opt['derain_ratio']
-        print("successfully loaded rain all_repeat:", len(rain_lq_path))
-        
-        self.gt_paths += rain_gt_path
-        self.lq_paths += rain_lq_path
+            print("successfully loaded rain all:", len(rain_lq_path))
+            rain_gt_path = rain_gt_path * self.opt['derain_ratio']
+            rain_lq_path = rain_lq_path * self.opt['derain_ratio']
+            print("successfully loaded rain all_repeat:", len(rain_lq_path))
+            
+            self.gt_paths += rain_gt_path
+            self.lq_paths += rain_lq_path
+        else:
+            print("Derain dataset skipped (ratio = 0)")
 
         # -------------------------------------------------
         # denoise
-        noise_gt_path = sorted(glob.glob(os.path.join(self.opt['denoise_gt'], '*')))
-        # add denoise_flag
-        ##################### Be careful of path name ##########################s
-        for i in range(len(noise_gt_path)):
-            noise_gt_path[i] = noise_gt_path[i]+'NOISE_FLAG'
-        print("successfully loaded noise all:", len(noise_gt_path))
-        noise_gt_path = noise_gt_path * self.opt['denoise_ratio']
-        print("successfully loaded noise all_repeat:", len(noise_gt_path))
-        
-        
-        self.gt_paths += noise_gt_path
+        if self.opt.get('denoise_ratio', 0) > 0:
+            noise_gt_path = sorted(glob.glob(os.path.join(self.opt['denoise_gt'], '*')))
+            # add denoise_flag
+            for i in range(len(noise_gt_path)):
+                noise_gt_path[i] = noise_gt_path[i] + 'NOISE_FLAG'
+            print("successfully loaded noise all:", len(noise_gt_path))
+            noise_gt_path = noise_gt_path * self.opt['denoise_ratio']
+            print("successfully loaded noise all_repeat:", len(noise_gt_path))
+            
+            self.gt_paths += noise_gt_path
+        else:
+            print("Denoise dataset skipped (ratio = 0)")
+
 
         
     def _add_gaussian_noise(self, clean_patch, sigma):
